@@ -128,6 +128,7 @@ NOTES:
  *   Rating: 1
  */
 int bitAnd(int x, int y) {
+  /* Uses Demorgan's Law to create a bitwise and out of nots and ors */
   return ~((~x) | (~y));
 }
 /*
@@ -138,6 +139,7 @@ int bitAnd(int x, int y) {
  *   Rating: 1
  */
 int bitXor(int x, int y) {
+  /* Uses Demorgan's Law to create a bitwise xor out of ands and nots */
   return ~((~((~x) & y)) & ~((x & (~y))));
 }
 /*
@@ -153,6 +155,8 @@ int bitXor(int x, int y) {
  *   Rating: 1
  */
 int thirdBits(void) {
+  /* Sets return value to a series of 100 repeating, then uses left shifts to replicate
+      said pattern */
   int ret = 9 << 6;
   ret += 9;
   ret = ret << 6;
@@ -171,6 +175,8 @@ int thirdBits(void) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
+  /* Uses the sign of x as well as the bitsize of x to see if x can be an n-bit 
+      two's complement integer */
   return !((x >> (n + (~0))) ^ (x >> 31));
 }
 /*
@@ -182,7 +188,8 @@ int fitsBits(int x, int n) {
  *  Rating: 2
  */
 int sign(int x) {
-    return (~(!x) + 2) + (x >> 31) + (x >> 31);
+  /* Uses shifts, nots, addition, and bangs to return the sign of an integer */
+  return (~(!x) + 2) + (x >> 31) + (x >> 31);
 }
 /*
  * getByte - Extract byte n from int x
@@ -193,6 +200,7 @@ int sign(int x) {
  *   Rating: 2
  */
 int getByte(int x, int n) {
+  /* Returns the nth byte in x using a mask and shifting */
   int shift = n << 3;
   return (x >> shift) & (0xFF);
 }
@@ -206,6 +214,8 @@ int getByte(int x, int n) {
  *   Rating: 3
  */
 int logicalShift(int x, int n) {
+  /* Uses a mux and two versions of a mask to return a logical shift of x by 
+      n bits */
   int and = ((~0x00) << (32 + (~n + 1)));
   int control = (~0x00) + !n;
   int andVal = (~control & and) | (control & ~and);
@@ -219,6 +229,8 @@ int logicalShift(int x, int n) {
  *   Rating: 3
  */
 int addOK(int x, int y) {
+  /* Returns if two two's complement integers can be added without overflow
+      using their sign bits compared to the sums sign bit */
   int sum = x + y;
   int x31 = (x >> 31);
   int y31 = (y >> 31);
@@ -238,6 +250,8 @@ int addOK(int x, int y) {
  *   Rating: 3
  */
 int invert(int x, int p, int n) {
+  /* Inverts n bits of x starting from position p using shifts, nots, 
+      addition and xors */
   return x ^ ((~0) << (n + p)) ^ ((~0) << p);
 }
 // Rating: 4
@@ -249,6 +263,7 @@ int invert(int x, int p, int n) {
  *   Rating: 4
  */
 int bang(int x) {
+  /* Returns bang(x) using nots, ands, a mask, and a shift */
   return ((~(~x + 1) & ~x) >> 31) & 0x01;
 }
 // Extra Credit: Rating: 3
@@ -260,6 +275,7 @@ int bang(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
+  /* Returns y if (x), else z, using a mux with x and !x as controls */
   return (y & ((!x) + ~0)) | (z & ~((!x) + ~0));
 }
 // Extra Credit: Rating: 4
@@ -272,5 +288,7 @@ int conditional(int x, int y, int z) {
  *   Rating: 4
  */
 int isPower2(int x) {
+  /* Returns if x is a power of 2 using a sign bit, an is zero bit, and
+      a check to see if x has one bit equal to 1 */
   return !!x & !((x & (~x + 1)) ^ x) & (!(x >> 31));
 }
