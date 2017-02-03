@@ -1,0 +1,5 @@
+Two plus two is ... ten. In base four! I'm fine!
+1 2 6 24 120 720
+1 223
+7 1
+4 56
