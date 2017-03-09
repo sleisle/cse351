@@ -394,7 +394,7 @@ void* mm_malloc (size_t size) {
     return removed block
   */
   ptrNextFree = searchFreeList(reqSize);
-  printf("%s %p %c\n", "ptrNextFree: ", ptrNextFree, (char) (ptrNextFree == NULL));
+  printf("%s %p %p\n", "ptrNextFree: ", ptrNextFree, (char *) (ptrNextFree == NULL));
 
   if (ptrNextFree == NULL) {
     printf("No free block");
@@ -402,6 +402,8 @@ void* mm_malloc (size_t size) {
     printf("Requested more space");
     ptrNextFree = searchFreeList(reqSize);
     *((size_t*)UNSCALED_POINTER_SUB(ptrNextFree, reqSize)) = reqSize | TAG_PRECEDING_USED;
+  } else {
+    printf("ptrNextFree not null");
   }
 
   // Check size
