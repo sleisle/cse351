@@ -389,11 +389,14 @@ void* mm_malloc (size_t size) {
 
   /*
     Check for free block
-      If free, mark as used and return
       If not free, request more space from heap and mark as used and return
+    If free block too big, split and add new block
+    return removed block
   */
+  ptrNextFree = searchFreeList(reqSize)
+  printf("%s %p\n", "ptrNextFree: ", ptrNextFree);
 
-  if ((ptrNextFree = searchFreeList(reqSize)) == NULL) {
+  if (ptrNextFree == NULL) {
     printf("No free block");
     requestMoreSpace(reqSize);
     printf("Requested more space");
