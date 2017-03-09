@@ -402,6 +402,7 @@ void* mm_malloc (size_t size) {
   printf("Did not find free block of size %d, reqSize %d\n", size, reqSize);
 
   requestMoreSpace(reqSize);
+  printf("Requested more space");
   ptrNextFree = searchFreeList(reqSize);
   printf("ptrNextFree set %p\n", ptrNextFree);
 
