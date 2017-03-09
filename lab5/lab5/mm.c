@@ -409,6 +409,34 @@ void* mm_malloc (size_t size) {
     // Request more space
     requestMoreSpace(reqSize);
     ptrFreeBlock = searchFreeList(reqSize);
+  }
+
+  // Get the size of the block and check to see if the previous block is used
+  precedingBlockUseTag = ptrFreeBlock->sizeAndTags & TAG_PRECEDING_USED;
+  blockSize = SIZE(ptrFreeBlock->sizeAndTags);
+  ptrFreeBlock->sizeAndTags = blockSize | precedingBlockUseTag;
+
+  // If we can split the block in question, do so now
+  if (((int)blockSize - (int)reqSize) >= 32) {
+    // Resize free block to length reqSize: update the header and boundary tag
+    ptrFreeBlock->sizeAndTags = reqSize | precedingBlockUseTag;
+    ((BlockInfo*)POINTER_ADD(ptrFreeBlock, reqSize-WORD_SIZE))->sizeAndTags = reqSize | precedingBlockUseTag;
+
+    // Create another block in the remaining space (blockSize-reqSize) and 
+    // add the appropriate header and boundary tag
+    ptrSplitBlock = (BlockInfo*)POINTER_ADD(ptrFreeBlock, reqSize);
+    ptrSplitBlock->sizeAndTags = (blockSize-reqSize) | TAG_PRECEDING_USED;
+    ((BlockInfo*)POINTER_ADD(ptrSplitBlock, blockSize-reqSize-WORD_SIZE))->sizeAndTags = (blockSize-reqSize) | TAG_PRECEDING_USED;
+
+    // Insert the newly created block into the linked list
+    insertFreeBlock(ptrSplitBlock);
+  }
+
+  // Remove the free block pointed to by ptrFreeBlock and mark the block as used
+  removeFreeBlock(ptrFreeBlock);
+  ptrFreeBlock->sizeAndTags = ptrFreeBlock->sizeAndTags | TAG_USED;
+
+  return POINTER_ADD(ptrFreeBlock,WORD_SIZE);
 
   /*printf("Calling mm_malloc\n");
 
@@ -438,12 +466,11 @@ void* mm_malloc (size_t size) {
     reqSize = ALIGNMENT * ((size + ALIGNMENT - 1) / ALIGNMENT);
   }
 
-  /*
-    Check for free block
-      If not free, request more space from heap and mark as used and return
-    If free block too big, split and add new block
-    return removed block
-  */
+    // Check for free block
+    //   If not free, request more space from heap and mark as used and return
+    // If free block too big, split and add new block
+    // return removed block
+  
   ptrNextFree = searchFreeList(reqSize);
   printf("%s %p %p\n", "ptrNextFree: ", ptrNextFree, (char *) (!ptrNextFree));
 
