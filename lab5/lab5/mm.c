@@ -398,6 +398,7 @@ void* mm_malloc (size_t size) {
 
   requestMoreSpace(reqSize);
   ptrNextFree = searchFreeList(reqSize);
+  removeFreeBlock(ptrNextFree);
 
   examine_heap();
 
