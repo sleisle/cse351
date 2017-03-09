@@ -399,7 +399,7 @@ void* mm_malloc (size_t size) {
   }
 
   // If a free block of reqSize doesn't exist, request space and return
-  printf("Did not find free block\n");
+  printf("Did not find free block of size %d, reqSize %d\n", size, reqSize);
 
   requestMoreSpace(reqSize);
   ptrNextFree = searchFreeList(reqSize);
