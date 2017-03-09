@@ -182,6 +182,7 @@ static void insertFreeBlock(BlockInfo* freeBlock) {
 
 /* Remove a free block from the free list. */
 static void removeFreeBlock(BlockInfo* freeBlock) {
+  printf("In removeFreeBlock");
   BlockInfo *nextFree, *prevFree;
 
   nextFree = freeBlock->next;
@@ -189,14 +190,17 @@ static void removeFreeBlock(BlockInfo* freeBlock) {
 
   // If the next block is not null, patch its prev pointer.
   if (nextFree != NULL) {
+    printf("nextFree isn't null");
     nextFree->prev = prevFree;
   }
 
   // If we're removing the head of the free list, set the head to be
   // the next block, otherwise patch the previous block's next pointer.
   if (freeBlock == FREE_LIST_HEAD) {
+    printf("freeBlock == FREE_LIST_HEAD");
     FREE_LIST_HEAD = nextFree;
   } else {
+    printf("freeBlock != FREE_LIST_HEAD");
     prevFree->next = nextFree;
   }
 }
@@ -379,10 +383,6 @@ void* mm_malloc (size_t size) {
     reqSize = ALIGNMENT * ((size + ALIGNMENT - 1) / ALIGNMENT);
   }
 
-  // Implement mm_malloc.  You can change or remove any of the above
-  // code.  It is included as a suggestion of where to start.
-  // You will want to replace this return statement...
-
   /*
     Check for free block
       If free, mark as used and return
@@ -409,6 +409,8 @@ void* mm_malloc (size_t size) {
   printf("Removed ptrNextFree\n");
   ptrNextFree->sizeAndTags = reqSize | TAG_USED;
   *((size_t*)UNSCALED_POINTER_ADD(ptrNextFree, reqSize)) = reqSize | TAG_USED;
+
+
   examine_heap();
 
   return ptrNextFree;
