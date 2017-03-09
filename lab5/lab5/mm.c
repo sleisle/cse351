@@ -393,7 +393,8 @@ void* mm_malloc (size_t size) {
   if ((ptrNextFree = searchFreeList(reqSize)) != NULL) {
     printf("Found free block\n");
     removeFreeBlock(ptrNextFree);
-    ptrNextFree->sizeAndTags = (reqSize << 3) | TAG_USED;
+    ptrNextFree->sizeAndTags = reqSize | TAG_USED;
+    *((size_t*)UNSCALED_POINTER_ADD(ptrNextFree, reqSize)) = reqSize | TAG_USED;
     return ptrNextFree;
   }
 
@@ -403,7 +404,8 @@ void* mm_malloc (size_t size) {
   requestMoreSpace(reqSize);
   ptrNextFree = searchFreeList(reqSize);
   removeFreeBlock(ptrNextFree);
-  ptrNextFree->sizeAndTags = (reqSize << 3) | TAG_USED;
+  ptrNextFree->sizeAndTags = reqSize | TAG_USED;
+  *((size_t*)UNSCALED_POINTER_ADD(ptrNextFree, reqSize)) = reqSize | TAG_USED;
   examine_heap();
 
   return ptrNextFree;
