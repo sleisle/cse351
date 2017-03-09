@@ -355,6 +355,7 @@ int mm_init () {
 void* mm_malloc (size_t size) {
   size_t reqSize;
   BlockInfo * ptrFreeBlock = NULL;
+  BlockInfo * ptrNextFree = NULL;
   size_t blockSize;
   size_t precedingBlockUseTag;
 
@@ -379,7 +380,24 @@ void* mm_malloc (size_t size) {
   // Implement mm_malloc.  You can change or remove any of the above
   // code.  It is included as a suggestion of where to start.
   // You will want to replace this return statement...
-  return NULL;
+
+  /*
+    Check for free block
+      If free, mark as used and return
+      If not free, request more space from heap and mark as used and return
+  */
+
+  ptrNextFree = searchFreeList(reqSize);
+  if (ptrNextFree == NULL) {
+    requestMoreSpace(reqSize);
+    ptrNextFree = searchFreeList(reqSize);
+  }
+
+  ptrNextFree->sizeAndTags = (reqSize << 3) | TAG_USED;
+
+  examine_heap();
+  
+  return ptrNextFree;
 }
 
 /* Free the block referenced by ptr. */
