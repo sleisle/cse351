@@ -266,7 +266,6 @@ static void coalesceFreeBlock(BlockInfo* oldBlock) {
 
 /* Get more heap space of size at least reqSize. */
 static void requestMoreSpace(size_t reqSize) {
-  printf("In requestMoreSpace\n");
   size_t pagesize = mem_pagesize();
   size_t numPages = (reqSize + pagesize - 1) / pagesize;
   BlockInfo *newBlock;
