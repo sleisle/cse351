@@ -397,13 +397,13 @@ void* mm_malloc (size_t size) {
   printf("%s %p %p\n", "ptrNextFree: ", ptrNextFree, (char *) (!ptrNextFree));
 
   if (!ptrNextFree) {
-    printf("No free block");
+    printf("%s", "No free block\n");
     requestMoreSpace(reqSize);
     printf("Requested more space");
     ptrNextFree = searchFreeList(reqSize);
     *((size_t*)UNSCALED_POINTER_SUB(ptrNextFree, reqSize)) = reqSize | TAG_PRECEDING_USED;
   }
-  printf("ptrNextFree not null");
+  printf("%s", "ptrNextFree not null\n");
   
   // Check size
   blockSize = SIZE(ptrNextFree->sizeAndTags);
