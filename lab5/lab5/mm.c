@@ -130,9 +130,9 @@ static void examine_heap() {
   /* print to stderr so output isn't buffered and not output if we crash */
   fprintf(stderr, "FREE_LIST_HEAD: %p\n", (void *)FREE_LIST_HEAD);
 
-  for (block = (BlockInfo *)UNSCALED_POIntER_ADD(mem_heap_lo(), WORD_SIZE); /* first block on heap */
+  for (block = (BlockInfo *)UNSCALED_POINTER_ADD(mem_heap_lo(), WORD_SIZE); /* first block on heap */
       SIZE(block->sizeAndTags) != 0 && block < (BlockInfo *)mem_heap_hi();
-      block = (BlockInfo *)UNSCALED_POIntER_ADD(block, SIZE(block->sizeAndTags))) {
+      block = (BlockInfo *)UNSCALED_POINTER_ADD(block, SIZE(block->sizeAndTags))) {
 
     /* print out common block attributes */
     fprintf(stderr, "%p: %ld %ld %ld\t",
