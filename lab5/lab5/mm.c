@@ -364,8 +364,10 @@ void* mm_malloc (size_t size) {
   size_t reqSize;
   BlockInfo * ptrFreeBlock = NULL;
   BlockInfo * ptrNextFree = NULL;
+  BlockInfo * ptrSpare = NULL;
   size_t blockSize;
   size_t precedingBlockUseTag;
+  size_t spareSize;
 
   // Zero-size requests get NULL.
   if (size == 0) {
@@ -397,6 +399,24 @@ void* mm_malloc (size_t size) {
     printf("Requested more space");
     ptrNextFree = searchFreeList(reqSize);
     *((size_t*)UNSCALED_POINTER_SUB(ptrNextFree, reqSize)) = reqSize | TAG_PRECEDING_USED;
+  }
+
+  // Check size
+  blockSize = SIZE(ptrNextFree->sizeAndTags);
+  precedingBlockUseTag = ptrNextFree->sizeAndTags & TAG_PRECEDING_USED;
+  ptrNextFree->sizeAndTags = blockSize | precedingBlockUseTag; // Set sizeAndTag tags based on boundary
+
+  // Check to see if too big
+  if (blockSize - reqSize > 33) {
+    spareSize = (blockSize - reqSize);
+    ptrNextFree->sizeAndTags = reqSize | precedingBlockUseTag;
+    ((BlockInfo*)UNSCALED_POINTER_ADD(ptrNextFree, reqSize - WORD_SIZE))->sizeAndTags = reqSize | precedingBlockUseTag;
+
+    ptrSpare = ((BlockInfo*)UNSCALED_POINTER_ADD(ptrNextFree, reqSize));
+    ptrSpare->sizeAndTags = spareSize | TAG_PRECEDING_USED; // Going to use preceding
+    ((BlockInfo*)UNSCALED_POINTER_ADD(sizeAndTags, spareSize - WORD_SIZE))->sizeAndTags = spareSize | precedingBlockUseTag;
+
+    insertFreeBlock(ptrSpare);
   }
   
   removeFreeBlock(ptrNextFree);
