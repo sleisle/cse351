@@ -440,12 +440,12 @@ void mm_free (void *ptr) {
 
   // Implement mm_free.  You can change or remove the declaraions
   // above.  They are included as minor hints.
-  blockInfo = (BlockInfo*)POINTER_SUB(ptr, WORD_SIZE);
+  blockInfo = (BlockInfo*)UNSCALED_POINTER_SUB(ptr, WORD_SIZE);
   blockSize = SIZE(blockInfo->sizeAndTags);
   precedingBlockUseTag = blockInfo->sizeAndTags & TAG_PRECEDING_USED;
   blockInfo->sizeAndTags = blockSize | precedingBlockUseTag;
 
-  ((BlockInfo*)POINTER_ADD(blockInfo,blockSize-WORD_SIZE))->sizeAndTags = blockInfo->sizeAndTags;
+  ((BlockInfo*)UNSCALED_POINTER_ADD(blockInfo,blockSize-WORD_SIZE))->sizeAndTags = blockInfo->sizeAndTags;
 
   // Erase the TAG_PRECEDING_USED bit in the next block header in memory if possible
   //  followingBlock = ((BlockInfo*)POINTER_ADD(blockInfo,blockSize));
