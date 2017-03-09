@@ -403,7 +403,10 @@ void* mm_malloc (size_t size) {
 
   requestMoreSpace(reqSize);
   ptrNextFree = searchFreeList(reqSize);
+  printf("ptrNextFree set %p\n", ptrNextFree);
+
   removeFreeBlock(ptrNextFree);
+  printf("Removed ptrNextFree\n");
   ptrNextFree->sizeAndTags = reqSize | TAG_USED;
   *((size_t*)UNSCALED_POINTER_ADD(ptrNextFree, reqSize)) = reqSize | TAG_USED;
   examine_heap();
