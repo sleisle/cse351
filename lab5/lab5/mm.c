@@ -130,9 +130,9 @@ static void examine_heap() {
   /* print to stderr so output isn't buffered and not output if we crash */
   fprintf(stderr, "FREE_LIST_HEAD: %p\n", (void *)FREE_LIST_HEAD);
 
-  for (block = (BlockInfo *)UNSCALED_POITNER_ADD(mem_heap_lo(), WORD_SIZE); /* first block on heap */
+  for (block = (BlockInfo *)UNSCALED_POIntER_ADD(mem_heap_lo(), WORD_SIZE); /* first block on heap */
       SIZE(block->sizeAndTags) != 0 && block < (BlockInfo *)mem_heap_hi();
-      block = (BlockInfo *)UNSCALED_POITNER_ADD(block, SIZE(block->sizeAndTags))) {
+      block = (BlockInfo *)UNSCALED_POIntER_ADD(block, SIZE(block->sizeAndTags))) {
 
     /* print out common block attributes */
     fprintf(stderr, "%p: %ld %ld %ld\t",
@@ -236,7 +236,7 @@ static void coalesceFreeBlock(BlockInfo* oldBlock) {
 
   // Coalesce with any following free block.
   // Start with the block following this one in memory
-  blockCursor = (BlockInfo*)UNSCALED_POITNER_ADD(oldBlock, oldSize);
+  blockCursor = (BlockInfo*)UNSCALED_POINTER_ADD(oldBlock, oldSize);
   while ((blockCursor->sizeAndTags & TAG_USED)==0) {
     // While the block is free:
 
@@ -245,7 +245,7 @@ static void coalesceFreeBlock(BlockInfo* oldBlock) {
     removeFreeBlock(blockCursor);
     // Count its size and step to the following block.
     newSize += size;
-    blockCursor = (BlockInfo*)UNSCALED_POITNER_ADD(blockCursor, size);
+    blockCursor = (BlockInfo*)UNSCALED_POINTER_ADD(blockCursor, size);
   }
 
   // If the block actually grew, remove the old entry from the free
@@ -291,7 +291,7 @@ static void requestMoreSpace(size_t reqSize) {
   prevLastWordMask = newBlock->sizeAndTags & TAG_PRECEDING_USED;
   newBlock->sizeAndTags = totalSize | prevLastWordMask;
   // Initialize boundary tag.
-  ((BlockInfo*)UNSCALED_POITNER_ADD(newBlock, totalSize - WORD_SIZE))->sizeAndTags =
+  ((BlockInfo*)UNSCALED_POINTER_ADD(newBlock, totalSize - WORD_SIZE))->sizeAndTags =
     totalSize | prevLastWordMask;
 
   /* initialize "new" useless last word
@@ -300,7 +300,7 @@ static void requestMoreSpace(size_t reqSize) {
      This trick lets us do the "normal" check even at the end of
      the heap and avoid a special check to see if the following
      block is the end of the heap... */
-  *((size_t*)UNSCALED_POITNER_ADD(newBlock, totalSize)) = TAG_USED;
+  *((size_t*)UNSCALED_POINTER_ADD(newBlock, totalSize)) = TAG_USED;
 
   // Add the new block to the free list and immediately coalesce newly
   // allocated memory space
@@ -327,7 +327,7 @@ int mm_init () {
     exit(1);
   }
 
-  firstFreeBlock = (BlockInfo*)UNSCALED_POITNER_ADD(mem_heap_lo(), WORD_SIZE);
+  firstFreeBlock = (BlockInfo*)UNSCALED_POINTER_ADD(mem_heap_lo(), WORD_SIZE);
 
   // Total usable size is full size minus heap-header and heap-footer words
   // NOTE: These are different than the "header" and "footer" of a block!
@@ -341,7 +341,7 @@ int mm_init () {
   firstFreeBlock->next = NULL;
   firstFreeBlock->prev = NULL;
   // boundary tag
-  *((size_t*)UNSCALED_POITNER_ADD(firstFreeBlock, totalSize - WORD_SIZE)) = totalSize | TAG_PRECEDING_USED;
+  *((size_t*)UNSCALED_POINTER_ADD(firstFreeBlock, totalSize - WORD_SIZE)) = totalSize | TAG_PRECEDING_USED;
 
   // Tag "useless" word at end of heap as used.
   // This is the is the heap-footer.
