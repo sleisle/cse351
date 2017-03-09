@@ -354,8 +354,6 @@ int mm_init () {
  * returns null.
  */
 void* mm_malloc (size_t size) {
-  printf("Calling mm_malloc\n");
-
   size_t reqSize;
   BlockInfo * ptrFreeBlock = NULL;
   BlockInfo * ptrNextFree = NULL;
@@ -382,31 +380,30 @@ void* mm_malloc (size_t size) {
     reqSize = ALIGNMENT * ((size + ALIGNMENT - 1) / ALIGNMENT);
   }
 
-    // Check for free block
-    //   If not free, request more space from heap and mark as used and return
-    // If free block too big, split and add new block
-    // return removed block
+/*
+    Check for free block
+      If not free, request more space from heap and mark as used and return
+        Must make small chunk first and then rescale
+    If free block too big, split and add new block
+    return removed block
+*/
   
   ptrNextFree = searchFreeList(reqSize);
-  printf("%s %p %p\n", "ptrNextFree: ", ptrNextFree, (char *) (!ptrNextFree));
 
   if (!ptrNextFree) {
-    printf("%s", "No free block\n");
 
     ptrNextFree = mem_sbrk(32);
     ptrNextFree = (BlockInfo*)UNSCALED_POINTER_SUB(ptrNextFree, WORD_SIZE);
     ptrNextFree->sizeAndTags = 32 | TAG_PRECEDING_USED;
 
+    // Set boundary tag info
     ((BlockInfo*)UNSCALED_POINTER_ADD(ptrNextFree, 32 - WORD_SIZE))->sizeAndTags = ptrNextFree->sizeAndTags;
-    *(size_t *)UNSCALED_POINTER_ADD(ptrNextFree, 32) = 1;
+    //*(size_t *)UNSCALED_POINTER_ADD(ptrNextFree, 32) = 1;
     insertFreeBlock(ptrNextFree);
 
     requestMoreSpace(reqSize);
-    printf("Requested more space");
     ptrNextFree = searchFreeList(reqSize);
-    // *((size_t*)UNSCALED_POINTER_SUB(ptrNextFree, reqSize)) = reqSize | TAG_PRECEDING_USED;
   }
-  printf("%s", "ptrNextFree not null\n");
   
   // Check size
   blockSize = SIZE(ptrNextFree->sizeAndTags);
@@ -427,10 +424,7 @@ void* mm_malloc (size_t size) {
   }
   
   removeFreeBlock(ptrNextFree);
-  printf("Removed ptrNextFree\n");
   ptrNextFree->sizeAndTags = reqSize | TAG_USED;
-
-  examine_heap();
 
   return UNSCALED_POINTER_ADD(ptrNextFree, WORD_SIZE);
 }
