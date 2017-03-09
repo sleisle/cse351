@@ -270,6 +270,8 @@ static void coalesceFreeBlock(BlockInfo* oldBlock) {
 
 /* Get more heap space of size at least reqSize. */
 static void requestMoreSpace(size_t reqSize) {
+  printf("In requestMoreSpace");
+
   size_t pagesize = mem_pagesize();
   size_t numPages = (reqSize + pagesize - 1) / pagesize;
   BlockInfo *newBlock;
@@ -389,28 +391,17 @@ void* mm_malloc (size_t size) {
       If not free, request more space from heap and mark as used and return
   */
 
-  // If a free block of at least reqSize exists, remove and return
-  if ((ptrNextFree = searchFreeList(reqSize)) != NULL) {
-    printf("Found free block\n");
-    removeFreeBlock(ptrNextFree);
-    ptrNextFree->sizeAndTags = reqSize | TAG_USED;
-    *((size_t*)UNSCALED_POINTER_ADD(ptrNextFree, reqSize)) = reqSize | TAG_USED;
-    return ptrNextFree;
+  if ((ptrNextFree = searchFreeList(reqSize)) = NULL) {
+    printf("No free block");
+    requestMoreSpace(reqSize);
+    printf("Requested more space");
+    ptrNextFree = searchFreeList(reqSize);
+    *((size_t*)UNSCALED_POINTER_SUB(ptrNextFree, reqSize)) = reqSize | TAG_PRECEDING_USED;
   }
-
-  // If a free block of reqSize doesn't exist, request space and return
-  printf("Did not find free block of size %d, reqSize %d\n", size, reqSize);
-
-  requestMoreSpace(reqSize);
-  printf("Requested more space");
-  ptrNextFree = searchFreeList(reqSize);
-  printf("ptrNextFree set %p\n", ptrNextFree);
-
+  
   removeFreeBlock(ptrNextFree);
   printf("Removed ptrNextFree\n");
   ptrNextFree->sizeAndTags = reqSize | TAG_USED;
-  *((size_t*)UNSCALED_POINTER_ADD(ptrNextFree, reqSize)) = reqSize | TAG_USED;
-
 
   examine_heap();
 
