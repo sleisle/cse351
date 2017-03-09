@@ -353,86 +353,7 @@ int mm_init () {
  * returns null.
  */
 void* mm_malloc (size_t size) {
-  size_t reqSize;
-  BlockInfo * ptrMemSbrkReturn = NULL;
-  BlockInfo * ptrFreeBlock = NULL;
-  BlockInfo * ptrSplitBlock = NULL;
-  size_t blockSize;
-  size_t precedingBlockUseTag;
-
-  // Zero-size requests get NULL.
-  if (size == 0) {
-    return NULL;
-  }
-
-  // Add one word for the initial size header.
-  // Note that we don't need to boundary tag when the block is used!
-  size += WORD_SIZE;
-  if (size <= MIN_BLOCK_SIZE) {
-    // Make sure we allocate enough space for a blockInfo in case we
-    // free this block (when we free this block, we'll need to use the
-    // next pointer, the prev pointer, and the boundary tag).
-    reqSize = MIN_BLOCK_SIZE;
-  } else {
-    // Round up for correct alignment
-    reqSize = ALIGNMENT * ((size + ALIGNMENT - 1) / ALIGNMENT);
-  }
-
-  // Implement mm_malloc.  You can change or remove any of the above
-  // code.  It is included as a suggestion of where to start.
-  // You will want to replace this return statement...
-
-  // Find the best free block or create a new one if necessary
-  ptrFreeBlock = searchFreeList(reqSize);
-  if (ptrFreeBlock == NULL) {
-    // Create the minimum sized block before making a call to requestMoreSpace
-    // This will allow coalescing done in that function to always work
-    ptrMemSbrkReturn = mem_sbrk(32);
-    ptrMemSbrkReturn = (BlockInfo*)UNSCALED_POINTER_SUB(ptrMemSbrkReturn, WORD_SIZE);
-    ptrMemSbrkReturn->sizeAndTags = 32 | TAG_PRECEDING_USED;
-  
-    // Add boundary tag
-    ((BlockInfo*)UNSCALED_POINTER_ADD(ptrMemSbrkReturn, 32-WORD_SIZE))->sizeAndTags = ptrMemSbrkReturn->sizeAndTags;
-
-    // Add last word to heap
-    *(size_t *)UNSCALED_POINTER_ADD(ptrMemSbrkReturn, 32) = 1;
-
-    // Add this small block to the linked list
-    insertFreeBlock(ptrMemSbrkReturn);
-
-    // Request more space
-    requestMoreSpace(reqSize);
-    ptrFreeBlock = searchFreeList(reqSize);
-  }
-
-  // Get the size of the block and check to see if the previous block is used
-  precedingBlockUseTag = ptrFreeBlock->sizeAndTags & TAG_PRECEDING_USED;
-  blockSize = SIZE(ptrFreeBlock->sizeAndTags);
-  ptrFreeBlock->sizeAndTags = blockSize | precedingBlockUseTag;
-
-  // If we can split the block in question, do so now
-  if (((int)blockSize - (int)reqSize) >= 32) {
-    // Resize free block to length reqSize: update the header and boundary tag
-    ptrFreeBlock->sizeAndTags = reqSize | precedingBlockUseTag;
-    ((BlockInfo*)UNSCALED_POINTER_ADD(ptrFreeBlock, reqSize-WORD_SIZE))->sizeAndTags = reqSize | precedingBlockUseTag;
-
-    // Create another block in the remaining space (blockSize-reqSize) and 
-    // add the appropriate header and boundary tag
-    ptrSplitBlock = (BlockInfo*)UNSCALED_POINTER_ADD(ptrFreeBlock, reqSize);
-    ptrSplitBlock->sizeAndTags = (blockSize-reqSize) | TAG_PRECEDING_USED;
-    ((BlockInfo*)UNSCALED_POINTER_ADD(ptrSplitBlock, blockSize-reqSize-WORD_SIZE))->sizeAndTags = (blockSize-reqSize) | TAG_PRECEDING_USED;
-
-    // Insert the newly created block into the linked list
-    insertFreeBlock(ptrSplitBlock);
-  }
-
-  // Remove the free block pointed to by ptrFreeBlock and mark the block as used
-  removeFreeBlock(ptrFreeBlock);
-  ptrFreeBlock->sizeAndTags = ptrFreeBlock->sizeAndTags | TAG_USED;
-
-  return UNSCALED_POINTER_ADD(ptrFreeBlock,WORD_SIZE);
-
-  /*printf("Calling mm_malloc\n");
+  printf("Calling mm_malloc\n");
 
   size_t reqSize;
   BlockInfo * ptrFreeBlock = NULL;
@@ -501,7 +422,7 @@ void* mm_malloc (size_t size) {
 
   examine_heap();
 
-  return ptrNextFree; */
+  return UNSCALED_POINTER_ADD(ptrNextFree, WORD_SIZE);
 }
 
 /* Free the block referenced by ptr. */
