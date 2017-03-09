@@ -393,7 +393,7 @@ void* mm_malloc (size_t size) {
       If not free, request more space from heap and mark as used and return
   */
 
-  if ((ptrNextFree = searchFreeList(reqSize)) = NULL) {
+  if ((ptrNextFree = searchFreeList(reqSize)) == NULL) {
     printf("No free block");
     requestMoreSpace(reqSize);
     printf("Requested more space");
@@ -414,7 +414,7 @@ void* mm_malloc (size_t size) {
 
     ptrSpare = ((BlockInfo*)UNSCALED_POINTER_ADD(ptrNextFree, reqSize));
     ptrSpare->sizeAndTags = spareSize | TAG_PRECEDING_USED; // Going to use preceding
-    ((BlockInfo*)UNSCALED_POINTER_ADD(sizeAndTags, spareSize - WORD_SIZE))->sizeAndTags = spareSize | precedingBlockUseTag;
+    ((BlockInfo*)UNSCALED_POINTER_ADD(ptrSpare, spareSize - WORD_SIZE))->sizeAndTags = spareSize | precedingBlockUseTag;
 
     insertFreeBlock(ptrSpare);
   }
