@@ -353,6 +353,8 @@ int mm_init () {
  * returns null.
  */
 void* mm_malloc (size_t size) {
+  printf("Calling mm_malloc\n");
+
   size_t reqSize;
   BlockInfo * ptrFreeBlock = NULL;
   BlockInfo * ptrNextFree = NULL;
@@ -387,16 +389,18 @@ void* mm_malloc (size_t size) {
       If not free, request more space from heap and mark as used and return
   */
 
-  ptrNextFree = searchFreeList(reqSize);
-  if (ptrNextFree == NULL) {
-    requestMoreSpace(reqSize);
-    ptrNextFree = searchFreeList(reqSize);
+  if ((ptrNextFree = searchFreeList(reqSize)) != NULL) {
+    printf("Found free block\n");
+    insertFreeBlock(ptrNextFree);
+    return ptrNextFree;
   }
+  printf("Did not find free block\n");
 
-  ptrNextFree->sizeAndTags = (reqSize << 3) | TAG_USED;
+  requestMoreSpace(reqSize);
+  ptrNextFree = searchFreeList(reqSize);
 
   examine_heap();
-  
+
   return ptrNextFree;
 }
 
