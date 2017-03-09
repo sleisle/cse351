@@ -28,7 +28,7 @@
    appropriate type and ensure you don't accidentally use the resulting
    pointer as a char* implicitly.
 */
-#define UNSCALED_POITNER_ADD(p,x) ((void*)((char*)(p) + (x)))
+#define UNSCALED_POINTER_ADD(p,x) ((void*)((char*)(p) + (x)))
 #define UNSCALED_POINTER_SUB(p,x) ((void*)((char*)(p) - (x)))
 
 
@@ -394,7 +394,7 @@ void* mm_malloc (size_t size) {
     // Create the minimum sized block before making a call to requestMoreSpace
     // This will allow coalescing done in that function to always work
     ptrMemSbrkReturn = mem_sbrk(32);
-    ptrMemSbrkReturn = (BlockInfo*)POINTER_SUB(ptrMemSbrkReturn, WORD_SIZE);
+    ptrMemSbrkReturn = (BlockInfo*)UNSCALED_POINTER_SUB(ptrMemSbrkReturn, WORD_SIZE);
     ptrMemSbrkReturn->sizeAndTags = 32 | TAG_PRECEDING_USED;
   
     // Add boundary tag
@@ -492,11 +492,11 @@ void* mm_malloc (size_t size) {
   if (blockSize - reqSize > 33) {
     spareSize = (blockSize - reqSize);
     ptrNextFree->sizeAndTags = reqSize | precedingBlockUseTag;
-    ((BlockInfo*)UNSCALED_POITNER_ADD(ptrNextFree, reqSize - WORD_SIZE))->sizeAndTags = reqSize | precedingBlockUseTag;
+    ((BlockInfo*)UNSCALED_POINTER_ADD(ptrNextFree, reqSize - WORD_SIZE))->sizeAndTags = reqSize | precedingBlockUseTag;
 
-    ptrSpare = ((BlockInfo*)UNSCALED_POITNER_ADD(ptrNextFree, reqSize));
+    ptrSpare = ((BlockInfo*)UNSCALED_POINTER_ADD(ptrNextFree, reqSize));
     ptrSpare->sizeAndTags = spareSize | TAG_PRECEDING_USED; // Going to use preceding
-    ((BlockInfo*)UNSCALED_POITNER_ADD(ptrSpare, spareSize - WORD_SIZE))->sizeAndTags = spareSize | precedingBlockUseTag;
+    ((BlockInfo*)UNSCALED_POINTER_ADD(ptrSpare, spareSize - WORD_SIZE))->sizeAndTags = spareSize | precedingBlockUseTag;
 
     insertFreeBlock(ptrSpare);
   }
