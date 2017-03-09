@@ -266,6 +266,7 @@ static void coalesceFreeBlock(BlockInfo* oldBlock) {
 
 /* Get more heap space of size at least reqSize. */
 static void requestMoreSpace(size_t reqSize) {
+  printf("In requestMoreSpace\n");
   size_t pagesize = mem_pagesize();
   size_t numPages = (reqSize + pagesize - 1) / pagesize;
   BlockInfo *newBlock;
@@ -391,10 +392,19 @@ void* mm_malloc (size_t size) {
 
   if (!ptrNextFree) {
     printf("%s", "No free block\n");
+
+    ptrNextFree = mem_sbrk(32);
+    ptrNextFree = (BlockInfo*)UNSCALED_POINTER_SUB(ptrNextFree, WORD_SIZE);
+    ptrNextFree->sizeAndTags = 32 | TAG_PRECEDING_USED;
+
+    ((BlockInfo*)UNSCALED_POINTER_ADD(ptrNextFree, 32 - WORD_SIZE))->sizeAndTags = ptrNextFree->sizeAndTags;
+    *(size_t *)UNSCALED_POINTER_ADD(ptrNextFree, 32) = 1;
+    insertFreeBlock(ptrNextFree);
+
     requestMoreSpace(reqSize);
     printf("Requested more space");
     ptrNextFree = searchFreeList(reqSize);
-    *((size_t*)UNSCALED_POINTER_SUB(ptrNextFree, reqSize)) = reqSize | TAG_PRECEDING_USED;
+    // *((size_t*)UNSCALED_POINTER_SUB(ptrNextFree, reqSize)) = reqSize | TAG_PRECEDING_USED;
   }
   printf("%s", "ptrNextFree not null\n");
   
