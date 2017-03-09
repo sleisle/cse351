@@ -393,7 +393,7 @@ void* mm_malloc (size_t size) {
     If free block too big, split and add new block
     return removed block
   */
-  ptrNextFree = searchFreeList(reqSize)
+  ptrNextFree = searchFreeList(reqSize);
   printf("%s %p\n", "ptrNextFree: ", ptrNextFree);
 
   if (ptrNextFree == NULL) {
