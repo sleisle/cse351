@@ -182,7 +182,6 @@ static void insertFreeBlock(BlockInfo* freeBlock) {
 
 /* Remove a free block from the free list. */
 static void removeFreeBlock(BlockInfo* freeBlock) {
-  printf("In removeFreeBlock");
   BlockInfo *nextFree, *prevFree;
 
   nextFree = freeBlock->next;
@@ -190,17 +189,14 @@ static void removeFreeBlock(BlockInfo* freeBlock) {
 
   // If the next block is not null, patch its prev pointer.
   if (nextFree != NULL) {
-    printf("nextFree isn't null");
     nextFree->prev = prevFree;
   }
 
   // If we're removing the head of the free list, set the head to be
   // the next block, otherwise patch the previous block's next pointer.
   if (freeBlock == FREE_LIST_HEAD) {
-    printf("freeBlock == FREE_LIST_HEAD");
     FREE_LIST_HEAD = nextFree;
   } else {
-    printf("freeBlock != FREE_LIST_HEAD");
     prevFree->next = nextFree;
   }
 }
@@ -270,8 +266,6 @@ static void coalesceFreeBlock(BlockInfo* oldBlock) {
 
 /* Get more heap space of size at least reqSize. */
 static void requestMoreSpace(size_t reqSize) {
-  printf("In requestMoreSpace");
-
   size_t pagesize = mem_pagesize();
   size_t numPages = (reqSize + pagesize - 1) / pagesize;
   BlockInfo *newBlock;
