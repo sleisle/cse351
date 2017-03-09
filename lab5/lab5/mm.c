@@ -402,10 +402,9 @@ void* mm_malloc (size_t size) {
     printf("Requested more space");
     ptrNextFree = searchFreeList(reqSize);
     *((size_t*)UNSCALED_POINTER_SUB(ptrNextFree, reqSize)) = reqSize | TAG_PRECEDING_USED;
-  } else {
-    printf("ptrNextFree not null");
   }
-
+  printf("ptrNextFree not null");
+  
   // Check size
   blockSize = SIZE(ptrNextFree->sizeAndTags);
   precedingBlockUseTag = ptrNextFree->sizeAndTags & TAG_PRECEDING_USED;
