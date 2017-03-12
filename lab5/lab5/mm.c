@@ -398,7 +398,7 @@ void* mm_malloc (size_t size) {
     // Set boundary tag info
     ((BlockInfo*)UNSCALED_POINTER_ADD(ptrNextFree, 32 - WORD_SIZE))->sizeAndTags = ptrNextFree->sizeAndTags;
 
-    //*(size_t *)UNSCALED_POINTER_ADD(ptrNextFree, 32) = 1; MAY NEED BUT DONT KNOW
+    *(size_t *)UNSCALED_POINTER_ADD(ptrNextFree, 32) = 1; MAY NEED BUT DONT KNOW
 
     insertFreeBlock(ptrNextFree);
 
