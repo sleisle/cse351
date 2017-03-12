@@ -433,29 +433,57 @@ void* mm_malloc (size_t size) {
 
 /* Free the block referenced by ptr. */
 void mm_free (void *ptr) {
-  examine_heap();
-  printf("called free\n");
-  size_t blockSize;
-  size_t precedingBlockUseTag;
+  size_t payloadSize;
   BlockInfo * blockInfo;
   BlockInfo * followingBlock;
+  size_t bitMask;
 
-  // Set up fields
-  blockInfo = (BlockInfo*)(UNSCALED_POINTER_SUB(ptr, WORD_SIZE));
-  blockSize = SIZE(blockInfo->sizeAndTags);
-  followingBlock = (BlockInfo*)(UNSCALED_POINTER_ADD(blockInfo, blockSize));
+  // Implement mm_free.  You can change or remove the declaraions
+  // above.  They are included as minor hints.
+ 
+  // set BlockInfo pointer to include header
+  blockInfo = (BlockInfo*) POINTER_SUB(ptr, WORD_SIZE);
+  payloadSize = SIZE(blockInfo->sizeAndTags) - WORD_SIZE;
+  followingBlock = (BlockInfo*) POINTER_ADD(ptr, payloadSize + WORD_SIZE);
+  
+  // set header (first tags, then size)
+  bitMask = ~0 << 1;
+  blockInfo->sizeAndTags &= bitMask; /* preserves all bits, except sets lowest
+              to 0 (unsetting used tag)  */
+  // copy header into footer
+  *((size_t*) POINTER_ADD(blockInfo, payloadSize)) = blockInfo->sizeAndTags;
+  
+  // set preceding use tag for following block
+  bitMask = (~0 << 2) | 1;
+  followingBlock->sizeAndTags &= bitMask; /* preserves all bits except 2nd
+            lowest bit */
 
-  // Set tags
-  blockInfo->sizeAndTags &= -2;
-  *((size_t*) UNSCALED_POINTER_SUB(followingBlock, WORD_SIZE)) = blockInfo->sizeAndTags;
-  followingBlock->sizeAndTags &= -3;
-
-  // Insert and coalesce free block
-  printf("inserting free\n");
+  // insert into free list and coalesce
   insertFreeBlock(blockInfo);
-  printf("coalescing free\n");
   coalesceFreeBlock(blockInfo);
-  examine_heap();
+  // examine_heap();
+  // printf("called free\n");
+  // size_t blockSize;
+  // size_t precedingBlockUseTag;
+  // BlockInfo * blockInfo;
+  // BlockInfo * followingBlock;
+
+  // // Set up fields
+  // blockInfo = (BlockInfo*)(UNSCALED_POINTER_SUB(ptr, WORD_SIZE));
+  // blockSize = SIZE(blockInfo->sizeAndTags);
+  // followingBlock = (BlockInfo*)(UNSCALED_POINTER_ADD(blockInfo, blockSize));
+
+  // // Set tags
+  // blockInfo->sizeAndTags &= -2;
+  // *((size_t*) UNSCALED_POINTER_SUB(followingBlock, WORD_SIZE)) = blockInfo->sizeAndTags;
+  // followingBlock->sizeAndTags &= -3;
+
+  // // Insert and coalesce free block
+  // printf("inserting free\n");
+  // insertFreeBlock(blockInfo);
+  // printf("coalescing free\n");
+  // coalesceFreeBlock(blockInfo);
+  // examine_heap();
 }
 
 // Implement a heap consistency checker as needed.
