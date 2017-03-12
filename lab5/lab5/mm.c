@@ -438,27 +438,7 @@ void mm_free (void *ptr) {
   BlockInfo * blockInfo;
   BlockInfo * followingBlock;
 
-  // Implement mm_free.  You can change or remove the declaraions
-  // above.  They are included as minor hints.
-  blockInfo = (BlockInfo*)UNSCALED_POINTER_SUB(ptr, WORD_SIZE);
-  blockSize = SIZE(blockInfo->sizeAndTags);
-  precedingBlockUseTag = blockInfo->sizeAndTags & TAG_PRECEDING_USED;
-  blockInfo->sizeAndTags = blockSize | precedingBlockUseTag;
-
-  ((BlockInfo*)UNSCALED_POINTER_ADD(blockInfo,blockSize-WORD_SIZE))->sizeAndTags = blockInfo->sizeAndTags;
-
-  // Erase the TAG_PRECEDING_USED bit in the next block header in memory if possible
-  //  followingBlock = ((BlockInfo*)POINTER_ADD(blockInfo,blockSize));
-  //  if (followingBlock != mem_heap_hi()) {
-  //    followingBlock->sizeAndTags = followingBlock->sizeAndTags & ~TAG_PRECEDING_USED;
-  //    if ((followingBlock->sizeAndTags) & 1 == 0) {
-  //      ((BlockInfo*)POINTER_ADD(followingBlock,(followingBlock->sizeAndTags)-WORD_SIZE))->sizeAndTags = followingBlock->sizeAndTags;
-  //    }
-  //  }
   
-  // Add free block and coalesce any remaining blocks
-  insertFreeBlock(blockInfo);
-  coalesceFreeBlock(blockInfo);
 
 }
 
