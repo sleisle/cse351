@@ -426,13 +426,14 @@ void* mm_malloc (size_t size) {
   
   removeFreeBlock(ptrNextFree);
   ptrNextFree->sizeAndTags = reqSize | TAG_USED;
-  examine_heap();
+  
 
   return UNSCALED_POINTER_ADD(ptrNextFree, WORD_SIZE);
 }
 
 /* Free the block referenced by ptr. */
 void mm_free (void *ptr) {
+  examine_heap();
   printf("called free\n");
   size_t blockSize;
   size_t precedingBlockUseTag;
@@ -454,6 +455,7 @@ void mm_free (void *ptr) {
   insertFreeBlock(blockInfo);
   printf("coalescing free\n");
   coalesceFreeBlock(blockInfo);
+  examine_heap();
 }
 
 // Implement a heap consistency checker as needed.
