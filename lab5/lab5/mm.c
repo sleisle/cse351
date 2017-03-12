@@ -414,7 +414,7 @@ void* mm_malloc (size_t size) {
     insertFreeBlock(ptrSpare);
   } else {
     *((size_t*)UNSCALED_POINTER_ADD(ptrFree, blockSize - WORD_SIZE)) = blockSize;
-    ((BlockInfo*)UNSCALED_POINTER_ADD(ptrFree, blockSize))-sizeAndTags |= TAG_PRECEDING_USED;
+    ((BlockInfo*)UNSCALED_POINTER_ADD(ptrFree, blockSize))->sizeAndTags |= TAG_PRECEDING_USED;
   }
 
   ptrFree->sizeAndTags = blockSize | precedingBlockUseTag; // Set sizeAndTag tags based on boundary
