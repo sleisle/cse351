@@ -433,6 +433,7 @@ void* mm_malloc (size_t size) {
 
 /* Free the block referenced by ptr. */
 void mm_free (void *ptr) {
+  printf("called free\n");
   size_t blockSize;
   size_t precedingBlockUseTag;
   BlockInfo * blockInfo;
@@ -449,7 +450,9 @@ void mm_free (void *ptr) {
   followingBlock->sizeAndTags &= -3;
 
   // Insert and coalesce free block
+  printf("inserting free\n");
   insertFreeBlock(blockInfo);
+  printf("coalescing free\n");
   coalesceFreeBlock(blockInfo);
 }
 
