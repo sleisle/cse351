@@ -401,13 +401,13 @@ void* mm_malloc (size_t size) {
 
     // Split off all but reqSize and insert as new block
     spare = (blockSize - reqSize);
-    split = (BlockInfo*) UNSCALED_POINTER_ADD(ptrFree, reqSize);
+    ptrSpare = (BlockInfo*) UNSCALED_POINTER_ADD(ptrFree, reqSize);
     blockSize -= reqSize;
-    split->sizeAndTags = (blockSize | TAG_PRECEDING_USED) & ~TAG_USED;
+    ptrSpare->sizeAndTags = (blockSize | TAG_PRECEDING_USED) & ~TAG_USED;
 
-    *((size_t*)UNSCALED_POINTER_ADD(split, blockSize - WORD_SIZE)) = split->sizeAndTags;
+    *((size_t*)UNSCALED_POINTER_ADD(ptrSpare, blockSize - WORD_SIZE)) = ptrSpare->sizeAndTags;
     blockSize = reqSize;
-    insertFreeBlock(split);
+    insertFreeBlock(ptrSpare);
 
   } else { // No split, set next to show prev is used
     *((size_t*)UNSCALED_POINTER_ADD(ptrFree, blockSize)) |= TAG_PRECEDING_USED;
