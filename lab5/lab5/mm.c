@@ -448,7 +448,7 @@ void mm_free (void *ptr) {
 
   // Insert and coalesce free block
   insertFreeBlock(blockInfo);
-  coalesceFreeBlock(blockInfo);
+  //coalesceFreeBlock(blockInfo);
 }
 
 // Implement a heap consistency checker as needed.
