@@ -432,14 +432,24 @@ void* mm_malloc (size_t size) {
 
 /* Free the block referenced by ptr. */
 void mm_free (void *ptr) {
-  // size_t payloadSize;
   size_t blockSize;
   size_t precedingBlockUseTag;
   BlockInfo * blockInfo;
   BlockInfo * followingBlock;
 
-  
+  // Set up fields
+  blockInfo = (BlockInfo*)(UNSCALED_POINTER_SUB(ptr, WORD_SIZE));
+  blockSize = SIZE(blockInfo->sizeAndTags);
+  followingBlock = (BlockInfo*)(UNSCALED_POINTER_ADD(blockInfo, blockSize));
 
+  // Set tags
+  blockInfo->sizeAndTags &= -2;
+  *((size_t*) UNSCALED_POINTER_SUB(followingBlock, WORD_SIZE)) = blockInfo->sizeAndTags;
+  followingBlock->sizeAndTags &= -3;
+
+  // Insert and coalesce free block
+  insertFreeBlock(blockInfo);
+  coalesceFreeBlock(blockInfo);
 }
 
 // Implement a heap consistency checker as needed.
