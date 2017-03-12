@@ -442,16 +442,16 @@ void mm_free (void *ptr) {
   // above.  They are included as minor hints.
  
   // set BlockInfo pointer to include header
-  blockInfo = (BlockInfo*) POINTER_SUB(ptr, WORD_SIZE);
+  blockInfo = (BlockInfo*) UNSCALED_POINTER_SUB(ptr, WORD_SIZE);
   payloadSize = SIZE(blockInfo->sizeAndTags) - WORD_SIZE;
-  followingBlock = (BlockInfo*) POINTER_ADD(ptr, payloadSize + WORD_SIZE);
+  followingBlock = (BlockInfo*) UNSCALED_POINTER_ADD(ptr, payloadSize + WORD_SIZE);
   
   // set header (first tags, then size)
   bitMask = ~0 << 1;
   blockInfo->sizeAndTags &= bitMask; /* preserves all bits, except sets lowest
               to 0 (unsetting used tag)  */
   // copy header into footer
-  *((size_t*) POINTER_ADD(blockInfo, payloadSize)) = blockInfo->sizeAndTags;
+  *((size_t*) UNSCALED_POINTER_ADD(blockInfo, payloadSize)) = blockInfo->sizeAndTags;
   
   // set preceding use tag for following block
   bitMask = (~0 << 2) | 1;
