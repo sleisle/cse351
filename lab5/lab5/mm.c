@@ -426,6 +426,7 @@ void* mm_malloc (size_t size) {
   
   removeFreeBlock(ptrNextFree);
   ptrNextFree->sizeAndTags = reqSize | TAG_USED;
+  examine_heap();
 
   return UNSCALED_POINTER_ADD(ptrNextFree, WORD_SIZE);
 }
